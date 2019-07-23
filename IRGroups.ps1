@@ -215,10 +215,13 @@ $Lists = @(
 				
 )
 
-$SQL_CONN ="Server=anc-ir-sql.apps.ad.alaska.edu;Database=IRPROD;Integrated Security=True;"
-$domaincontroller = 'ua.ad.alaska.edu'
+$domaincontroller = "ua.ad.alaska.edu"
+$Count = 0
 
 function Get-Users ($sqlQuery) {
+
+    $SQL_CONN = "Server=anc-ir-sql.apps.ad.alaska.edu;Database=IRPROD;Integrated Security=True;"
+    # $sqlQuery = "SELECT * FROM [IRPROD].[active_directory].[UAA_EES_REGULAR] WHERE UA_ID = '31028884'"
 
 	$SqlConnection = New-Object System.Data.SqlClient.SqlConnection
 	$SqlConnection.ConnectionString = $SQL_CONN
@@ -258,13 +261,17 @@ ForEach ($list in $Lists) {
     $groupDN = $list.dn
     $groupFN = $list.friendlyName
     $data = Get-Users $list.query
-        
+    
     ForEach ($row in $data) {
+
+        $Count++
+        $Percent = "$([math]::Round($Count/$data.Count*100))%"
+        Write-Progress -Activity "Processing UAID: $($row.ua_id)" -Status "Progress $Count of $($data.Count): $Percent" -PercentComplete (($Count / $data.Count) * 100)
 
         Try {
 
             $uaidentifier = $row.ua_id
-            # Write-Host $uaidentifier -ForegroundColor Cyan
+            Write-Host $uaidentifier -ForegroundColor Cyan
             $fedUser = Get-ADUser -filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server $domaincontroller -ErrorAction Stop
             $samAccountName = $fedUser.samAccountName
             # Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU') -ForegroundColor Green
@@ -295,7 +302,7 @@ ForEach ($list in $Lists) {
             
             Write-Host "Adding user failed" -ForegroundColor Red
             Write-Host $uaidentifier -ForegroundColor Red
-            Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server ua.ad.alaska.edu) -ForegroundColor Red
+            Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server $domaincontroller) -ForegroundColor Red
             $list.failedCount++
             If ($row.ua_id -eq $null) {
                 $list.inputData += "NULL"
