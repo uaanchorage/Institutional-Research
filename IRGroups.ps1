@@ -216,7 +216,7 @@ $Lists = @(
 )
 
 $domaincontroller = "ua.ad.alaska.edu"
-$Count = 0
+$Count1 = 0
 
 function Get-Users ($sqlQuery) {
 
@@ -257,21 +257,27 @@ function Mail ($emailBody) {
 }
 
 ForEach ($list in $Lists) {
+
+    $Count1++
+    $Percent = "$([math]::Round($Count1/$Lists.Count*100))%"
+    Write-Progress -Activity "Processing IRPROD Table: $($list.friendlyName)" -Status "Progress $Count1 of $($Lists.Count): $Percent" -PercentComplete (($Count1 / $Lists.Count) * 100)
     
     $groupDN = $list.dn
     $groupFN = $list.friendlyName
     $data = Get-Users $list.query
+
+    $Count2 = 0
     
     ForEach ($row in $data) {
 
-        $Count++
-        $Percent = "$([math]::Round($Count/$data.Count*100))%"
-        Write-Progress -Activity "Processing UAID: $($row.ua_id)" -Status "Progress $Count of $($data.Count): $Percent" -PercentComplete (($Count / $data.Count) * 100)
+        $Count2++
+        $Percent = "$([math]::Round($Count2/$data.Count*100))%"
+        Write-Progress -Activity "Processing UAID: $($row.ua_id)" -Status "Progress $Count2 of $($data.Count): $Percent" -PercentComplete (($Count2 / $data.Count) * 100)
 
         Try {
 
             $uaidentifier = $row.ua_id
-            Write-Host $uaidentifier -ForegroundColor Cyan
+            # Write-Host $uaidentifier -ForegroundColor Cyan
             $fedUser = Get-ADUser -filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server $domaincontroller -ErrorAction Stop
             $samAccountName = $fedUser.samAccountName
             # Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU') -ForegroundColor Green
