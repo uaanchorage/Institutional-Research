@@ -298,7 +298,7 @@ ForEach ($list in $Lists) {
 
         Try {
 
-            Add-ADGroupMember -Identity $groupDN -Members $samAccountName
+            Add-ADGroupMember -Identity $groupDN -Members $samAccountName -Server $domaincontroller
             # Write-Host "User successfully added" -ForegroundColor Green
             $list.numofmembers++
 
