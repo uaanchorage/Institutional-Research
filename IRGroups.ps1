@@ -216,6 +216,7 @@ $Lists = @(
 )
 
 $SQL_CONN ="Server=anc-ir-sql.apps.ad.alaska.edu;Database=IRPROD;Integrated Security=True;"
+$domaincontroller = 'ua.ad.alaska.edu'
 
 function Get-Users ($sqlQuery) {
 
@@ -264,7 +265,7 @@ ForEach ($list in $Lists) {
 
             $uaidentifier = $row.ua_id
             # Write-Host $uaidentifier -ForegroundColor Cyan
-            $fedUser = Get-ADUser -filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -ErrorAction Stop
+            $fedUser = Get-ADUser -filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server $domaincontroller -ErrorAction Stop
             $samAccountName = $fedUser.samAccountName
             # Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU') -ForegroundColor Green
 
