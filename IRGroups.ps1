@@ -295,7 +295,7 @@ ForEach ($list in $Lists) {
             
             Write-Host "Adding user failed" -ForegroundColor Red
             Write-Host $uaidentifier -ForegroundColor Red
-            Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU') -ForegroundColor Red
+            Write-Host (Get-ADUser -Filter 'uaidentifier -eq $uaidentifier' -SearchBase 'OU=userAccounts,DC=UA,DC=AD,DC=ALASKA,DC=EDU' -Server ua.ad.alaska.edu) -ForegroundColor Red
             $list.failedCount++
             If ($row.ua_id -eq $null) {
                 $list.inputData += "NULL"
